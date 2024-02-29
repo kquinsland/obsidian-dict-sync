@@ -1,0 +1,49 @@
+# Example configuration file for obsidian dictionary sync tool
+##
+# Provide a list of dictionary files.
+# Each entry must have a `path` key.
+# Other than the dictionary named `authoritative`, the names
+#   don't matter and are purely for your convenience
+#
+# Adjust or delete entries that you don't need if desired.
+##
+# Currently not used; prepping
+version = 1
+log_level = "info"
+[dictionaries]
+
+# The dictionary that is the source of truth / kept in sync
+[dictionaries.authoritative]
+path = "./master_dictionary.txt"
+
+# Note: Windows is not currently well tested; this likely doesn't work
+# TODO: add support for windows equivalent of ~
+[dictionaries.windows]
+path = "C:\\Users\\YourNameHere\\AppData\\Roaming\\obsidian\\Custom Dictionary.txt"
+
+# Note: when in quotes, spaces do not need to be escaped
+[dictionaries.flatpak]
+path = "~/.var/app/md.obsidian.Obsidian/config/obsidian/Custom Dictionary.txt"
+
+[dictionaries.appimage]
+path = "~/.config/obsidian/Custom Dictionary.txt"
+
+[dictionaries.macOS]
+path = "~/Library/Application Support/obsidian/Custom Dictionary.txt"
+
+# The obsidian interface for removing words is tedious (no search/sort/multi-select).
+# This makes things a bit easier. Anything in the list below will not be written to the dictionary file.
+[filters]
+remove = [
+    # Test strings; if you type `aa` or `ZZ` in a new Obsidian note and then right click -> add to dictionary
+    # then the strings should no longer be underlined in red.
+    # Close Obsidian, run this tool and re-open Obsidian.
+    # Both `aa` and `ZZ` should be underlined in red again.
+    ##
+    "aa",
+    "ZZ",
+    # Only 'correct' spelling of FitBit is camel case so remove the incorrect forms that were accidentally added
+    #   to the white list
+    "Fitbit",
+    "fitbit",
+]

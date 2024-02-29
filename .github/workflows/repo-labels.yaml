@@ -1,0 +1,53 @@
+# See: https://github.com/simonw/create-labels-workflow
+---
+name: Update repository labels
+
+on:
+  # Manually invoke as needed
+  workflow_dispatch:
+  push:
+    branches:
+    - main
+    paths:
+    - '.github/workflows/repo-labels.yml'
+
+jobs:
+  create-labels:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    env:
+      LABELS_JSON: |
+        [
+          {"name": "chore", "color": "c2e0c6", "description": "Chore"},
+          {"name": "documentation", "color": "7f8c8d", "description": "Documentation"},
+          {"name": "enhancement", "color": "3498db", "description": "Tweaks to existing functionality"},
+          {"name": "feature", "color": "2ecc71", "description": "New functionality"},
+          {"name": "fix", "color": "e74c3c", "description": "Fix a bug"},
+          {"name": "question", "color": "f1c40f", "description": "Question"}
+        ]
+    steps:
+    # See: https://github.com/actions/github-script/releases
+    - uses: actions/github-script@v7
+      with:
+        script: |
+          const labels = JSON.parse(process.env.LABELS_JSON);
+          for (const label of labels) {
+            try {
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: label.name,
+                description: label.description || '',
+                color: label.color
+              });
+            } catch (error) {
+              // Check if the error is because the label already exists
+              if (error.status === 422) {
+                console.log(`Label '${label.name}' already exists. Skipping.`);
+              } else {
+                // Log other errors
+                console.error(`Error creating label '${label.name}': ${error}`);
+              }
+            }
+          }

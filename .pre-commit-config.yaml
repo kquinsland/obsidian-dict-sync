@@ -1,0 +1,39 @@
+---
+repos:
+  # Check that readme is linted
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.37.0
+    hooks:
+      - id: markdownlint
+
+  # Assuming nothing wrong, render updated ToC
+  # See: https://github.com/thlorenz/doctoc/tags
+  - repo: https://github.com/thlorenz/doctoc
+    rev: v2.2.0
+    hooks:
+      - id: doctoc
+        files: readme.md
+        args: ["--update-only", "--github", "--maxlevel", "4"]
+
+  # Then clean up the rest of the repo
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    # See: https://github.com/pre-commit/pre-commit-hooks/releases
+    rev: v4.5.0
+    hooks:
+      # TODO: ignore dictionary.txt file(s) that might be present
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-toml
+
+  # Before spending time trying to test/build the tool
+  # Currently not able to use, getting error on setup:
+  # An unexpected error has occurred: CalledProcessError:
+  #       command: ('/home/karl/.cargo/bin/cargo', 'install', '--bins', '--root', '/home/karl/.cache/pre-commit/repot0_b0wjg/rustenv-system', '--path', '.')
+  #       error: `/home/karl/.cache/pre-commit/repot0_b0wjg` does not contain a Cargo.toml file. --path must point to a directory containing a Cargo.toml file.
+  #
+  # Might be related: https://github.com/doublify/pre-commit-rust/issues/8
+  # - repo: https://github.com/FeryET/pre-commit-rust
+  #   rev: v1.0.3
+  #   hooks:
+  #       - id: fmt
+  #       - id: cargo-check

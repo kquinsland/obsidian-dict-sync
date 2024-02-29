@@ -1,0 +1,19 @@
+# .markdownlint.yaml
+# See: https://github.com/DavidAnson/markdownlint/blob/main/schema/.markdownlint.yaml
+##
+# Default state for all rules with a few changes below
+default: true
+
+# Path to configuration file to extend
+extends: null
+
+# MD013/line-length - Line length
+# Don't enforce this
+MD013: False
+
+# MD033/no-inline-html - Inline HTML
+# Don't enforce as there's a lot of hugo templates that trigger this
+MD033: true
+
+# MD034/no-bare-urls - Bare URL used
+MD034: false

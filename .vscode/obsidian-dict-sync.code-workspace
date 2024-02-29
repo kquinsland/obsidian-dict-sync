@@ -1,0 +1,120 @@
+{
+    "folders": [
+        {
+            "path": ".."
+        }
+    ],
+    "settings": {
+        "[rust]": {
+            // https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer
+            "editor.defaultFormatter": "rust-lang.rust-analyzer",
+            "editor.formatOnSave": true
+        },
+        "cSpell.words": [
+            "appimage",
+            "autolabeler",
+            "canonicalization",
+            "canonicalize",
+            "canonicalized",
+            "canonicalizing",
+            "checksummed",
+            "clippy",
+            "concatcp",
+            "doctoc",
+            "flatpak",
+            "hexdigest",
+            "msvc",
+            "pathbuf",
+            "RUSTC",
+            "rustfmt",
+            "serde",
+            "shellexpand",
+            "Templater"
+        ],
+    },
+    "launch": {
+        // The following are sample configurations for common case scenarios of debugging
+        // Rust in Visual Studio Code
+        //
+        // For syntax, visit: https://go.microsoft.com/fwlink/?linkid=830387
+        // See: https://gist.github.com/xanathar/c7c83e6d53b72dd4464f695607012629
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Launch an application",
+                "type": "lldb",
+                "request": "launch",
+                "program": "${workspaceRoot}/target/debug/obs-dict-sync",
+                "args": [
+                    "--config",
+                    "${workspaceRoot}/config.toml"
+                ],
+                "cwd": "${workspaceRoot}",
+            },
+            {
+                "name": "Attach to a named executable",
+                "type": "lldb",
+                "request": "attach",
+                "program": "${workspaceRoot}/target/debug/obs-dict-sync",
+            },
+            {
+                "name": "Debug ALL unit tests in library 'mylib'",
+                "type": "lldb",
+                "request": "launch",
+                "cargo": {
+                    "args": [
+                        "test",
+                        "--no-run",
+                        "--lib",
+                        "--package=mylib"
+                    ],
+                    "filter": {
+                        "name": "mylib",
+                        "kind": "lib"
+                    }
+                },
+                "args": [],
+                "cwd": "${workspaceFolder}"
+            },
+            {
+                "name": "Debug specific unit test in library 'mylib'",
+                "type": "lldb",
+                "request": "launch",
+                "cargo": {
+                    "args": [
+                        "test",
+                        "--no-run",
+                        "--lib",
+                        "--package=mylib"
+                    ],
+                    "filter": {
+                        "name": "mylib",
+                        "kind": "lib"
+                    }
+                },
+                "args": [
+                    "name_of_the_unit_test"
+                ],
+                "cwd": "${workspaceFolder}"
+            },
+            {
+                "name": "Debug example 'some-example'",
+                "type": "lldb",
+                "request": "launch",
+                "cargo": {
+                    "args": [
+                        "build",
+                        "--example=some-example",
+                        "--package=my-package"
+                    ],
+                    "filter": {
+                        "name": "some-example",
+                        "kind": "example"
+                    }
+                },
+                "args": [],
+                "cwd": "${workspaceFolder}"
+            },
+        ]
+    }
+}

@@ -1,0 +1,58 @@
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[package]
+name = "obs-dict-sync"
+description = "A quick and dirty tool to synchronize Obsidian.md user dictionaries."
+
+version = "0.1.1"
+edition = "2021"
+
+authors = ["kquinsland"]
+homepage = "https://github.com/kquinsland/obsidian-dict-sync"
+repository = "https://github.com/kquinsland/obsidian-dict-sync"
+license-file = "LICENSE"
+
+categories = ["command-line-utilities"]
+
+
+# Needed for built crate
+build = "build.rs"
+
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+clap = { version = "4.1.11", features = ["derive", "env"] }
+toml = "0.8"
+log = "0.4"
+env_logger = "0.11"
+# Needed for relative dict path expansions
+shellexpand = "3.0"
+# For dictionary file hash
+md5 = "0.7"
+
+built = { version = "0.7", features = ["chrono", "semver"] }
+const_format = "0.2.32"
+
+
+[build-dependencies]
+built = { version = "0.7", features = [
+    "cargo-lock",
+    "dependency-tree",
+    "git2",
+    "chrono",
+    "semver",
+] }
+
+# Production release should be ultra compact
+[profile.release]
+# No symbols
+strip = true
+# Optimize for size
+opt-level = "s"
+## Does make compile/link time longer bug gets us smallest possible binary
+# Link time optimize.
+lto = true
+# Don't do parallel codegen
+codegen-units = 1
+
+[dev-dependencies]
+tempfile = "3.3.0"

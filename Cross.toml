@@ -1,0 +1,32 @@
+# See: https://github.com/cross-rs/cross/blob/main/docs/cross_toml.md
+# See: https://github.com/cross-rs/cross/wiki/Configuration
+##
+# Using cross to build binaries for platforms that I can't build for "natively" with cargo on my machine (amd64 linux)
+##
+[build]
+# Uncertain why I get this error:
+#   0: no rust-std component available for x86_64-pc-windows-gnu: must use nightly
+##
+# use stdlib
+# build-std = true
+
+# xargo is maintenance mode, so we don't want to use it
+xargo = false
+
+default-target = "x86_64-pc-windows-gnu"
+
+# Default to release builds
+[build.env]
+# Same as --target=release
+# see cargo.toml for definition of 'release'
+CARGO_BUILD_TARGET = "release"
+
+# Modern windows
+[target.x86_64-pc-windows-gnu]
+
+# Mainly for Asahi
+[target.aarch64-unknown-linux-gnu]
+
+# MacOS
+[target.aarch64-apple-darwin]
+[target.x86_64-apple-darwin]

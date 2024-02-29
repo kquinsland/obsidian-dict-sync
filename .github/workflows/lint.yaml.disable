@@ -1,0 +1,39 @@
+name: Lint
+
+on:
+  push:
+  pull_request:
+
+env:
+  CRATE_NAME: obsidian-dict-sync
+  # In the event that something does go wrong, want all the information we can get
+  RUST_BACKTRACE: full
+
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # obsidian-dict-sync doesn't use any fancy rust, stable is all we need to test against
+      # This may change in the future.
+      matrix:
+        toolchain:
+          - stable
+    steps:
+      # Pull local
+      - uses: actions/checkout@v4
+      # Setup or re-use cargo cache
+      - name: Cache cargo & target directories
+        uses: Swatinem/rust-cache@v2
+      # We need clippy and rustfmt
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          components: rustfmt, clippy
+      - name: Run clippy
+        # TODO: re-add -- -D warnings so we can fail on warnings
+        # For now, we're just going to lint but still pass / build
+        run: cargo clippy --all-targets --all-features

@@ -1,0 +1,147 @@
+---
+name: Tests and release
+on:
+  push:
+    # After some consideration, manually bumping version locally and pushing isn't the end of the world.
+    #   This is a small project and I am the only one working on it; the overhead of automating this is not worth it.
+    tags:
+      - "v*.*.*"
+  # Still do the build and test when a PR is opened.
+  # It might be worth it to decompose this into a few smaller sub-jobs and composite them all together
+  #   rather than use `if:` statements. That way I can drop the `if:` statements and do just the cheap *nix build/test
+  #   every time a PR is updated.
+  # Can still require manually invoking the full build/test job before merging and can require that the full build/test job
+  #   be run before the PR can be merged.
+  ##
+  pull_request:
+
+env:
+  GITHUB_TOKEN: ${{ github.token }}
+  CRATE_NAME: obsidian-dict-sync
+  # In the event that something does go wrong, want all the information we can get
+  RUST_BACKTRACE: full
+
+jobs:
+  # TODO: this could probably be composited
+  build-test-and-release:
+    name: ${{ matrix.platform.os_name }} with rust ${{ matrix.toolchain }}
+    runs-on: ${{ matrix.platform.os }}
+    # Uploading artifacts requires write permissions
+    permissions:
+      contents: write
+    strategy:
+      # Don't fail the entire build if one platform fails
+      fail-fast: false
+      matrix:
+        # Obsidian is an Electron app so it can probably run on just about any modern platform
+        #   but I am only interested in aarch64/x86_64 architectures on Linux, Windows, and macOS platforms.
+        # Where possible musl flavor libc is used.
+        ##
+        # To make things easier for the Templater -> UserScript to call the correct binary, each binary is named:
+        #   dict-sync.$PLAT.$arch[.exe]
+        ##
+        platform:
+          # Don't have 64bit arm hardware to test so only build for x86_64
+          - os_name: Linux-x86_64
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            bin: obs-dict-sync
+            name: obs-dict-sync.linux-x86_64-musl.tar.gz
+
+          - os_name: Windows-x86_64
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            bin: obs-dict-sync.exe
+            name: obs-dict-sync.windows-x86_64.zip
+
+          # TODO: check GHA runtime cost multiplier for mac.
+          # Might be worth it to use *nix cross compile (see docs/build-notes.md)
+          - os_name: macOS-x86_64
+            os: macOS-latest
+            target: x86_64-apple-darwin
+            bin: obs-dict-sync
+            name: obs-dict-sync.darwin-x86_64.tar.gz
+
+          - os_name: macOS-aarch64
+            os: macOS-latest
+            target: aarch64-apple-darwin
+            bin: obs-dict-sync
+            name: obs-dict-sync.darwin-aarch64.tar.gz
+            skip_tests: true
+        toolchain:
+          - stable
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache cargo & target directories
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install musl-tools on Linux
+        run: sudo apt-get update --yes && sudo apt-get install --yes musl-tools
+        if: contains(matrix.platform.name, 'musl')
+
+      - name: Build binary
+        uses: houseabsolute/actions-rust-cross@v0
+        with:
+          command: "build"
+          target: ${{ matrix.platform.target }}
+          toolchain: ${{ matrix.toolchain }}
+          args: "--locked --release"
+          strip: true
+
+      - name: Run tests
+        uses: houseabsolute/actions-rust-cross@v0
+        with:
+          command: "test"
+          target: ${{ matrix.platform.target }}
+          toolchain: ${{ matrix.toolchain }}
+          args: "--locked --release"
+        if: ${{ !matrix.platform.skip_tests }}
+
+      - name: Package as archive
+        shell: bash
+        # Only package stable from a v.X.Y.Z tag or test-release
+        if: |
+          matrix.toolchain == 'stable' &&
+          ( startsWith( github.ref, 'refs/tags/v' ) ||
+            github.ref == 'refs/tags/test-release' )
+        run: |
+          cd target/${{ matrix.platform.target }}/release
+          if [[ "${{ matrix.platform.os }}" == "windows-latest" ]]; then
+            7z a ../../../${{ matrix.platform.name }} ${{ matrix.platform.bin }}
+          else
+            tar czvf ../../../${{ matrix.platform.name }} ${{ matrix.platform.bin }}
+          fi
+          cd -
+
+        # Sha256 all the things
+      - name: Generate SHA-256
+        run: shasum -a 256 ${{ matrix.platform.name }}
+        if: |
+          matrix.toolchain == 'stable' &&
+          matrix.platform.os == 'macOS-latest' &&
+          ( startsWith( github.ref, 'refs/tags/v' ) ||
+            github.ref == 'refs/tags/test-release' )
+
+      # If test, publish artifacts but don't create a formal release
+      - name: Publish test release artifacts
+        if: matrix.toolchain == 'stable' && github.ref == 'refs/tags/test-release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs-dict-sync.${{ matrix.platform.os_name }}
+          path: "obs-dict-sync-*"
+
+      # Otherwise, create a formal release
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          # Files will be saved as
+          # obs-dict-sync.linux-x86_64-musl.tar.gz
+          # which is
+          # obs-dict-sync.${{ matrix.platform.name }}.tar.gz
+          files: "obs-dict-sync*"
+          # TODO: use release-drafter?
+          # body_path: Changes.md
+        if: matrix.toolchain == 'stable' && startsWith( github.ref, 'refs/tags/v' )
