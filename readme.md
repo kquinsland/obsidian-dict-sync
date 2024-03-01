@@ -53,13 +53,51 @@ This has a few implications:
 
 ## Install
 
-> **Note**
-> You will need `curl` and `jq` and `wget` installed.
+You can download the binaries from the [releases page](https://github.com/kquinsland/obsidian-dict-sync/releases) or you can use the following `curl` and `jq` and `wget` command to download the latest release.
 
 ```shell
-//TODO: need to squash commit and force push to drop history and then make public / test this out.
 ❯ curl -s https://api.github.com/repos/kquinsland/obsidian-dict-sync/releases/latest | jq -r '.assets[] | select(.name | startswith("obs-dict-sync")) | .browser_download_url' | wget -i -
 ```
+
+After obtaining the compressed binaries, you'll need to decompress them and make them executable.
+Where you store them is up to you depending on your workflow.
+
+The binaries are small so there's no real harm in synchronizing them along side your vault(s).
+
+For example, I use a directory structure like this:
+
+<!--
+https://tree.nathanfriend.io/?s=(%27options!(%27fancy!true~fullPath!false~trailingSlash!true~roIDI!false)~E(%27E%27SJFolderRoI7*2Mconfig.tomlB.aarch64B9Llinux9Lwindows9.exe0master_dKionary.txt77*Vaults0CVaultNameHere0*.obsidian3_meta3*templateGdaily-A5**toolG*obs-25*user_scriptGcallObsDKSJ.js0*C_A5C-Iher-A5project13*A15*...77%27)~version!%271%27)*%20%2007**2dK-sJ3M*5.md0*7%5Cn9.x86_64AnIeBLdarwinCsomeEsource!Gs3**IotJyncKictL02.M%2F0%01MLKJIGECBA975320*
+-->
+
+```text
+Obsidian/
+├── dict-sync/
+│   ├── config.toml
+│   ├── dict-sync.darwin.aarch64
+│   ├── dict-sync.darwin.x86_64
+│   ├── dict-sync.linux.x86_64
+│   ├── dict-sync.windows.x86_64.exe
+│   └── master_dictionary.txt
+└── Vaults/
+    └── someVaultNameHere/
+        ├── .obsidian/
+        ├── _meta/
+        │   ├── templates/
+        │   │   ├── daily-note.md
+        │   │   └── tools/
+        │   │       └── obs-dict-sync.md
+        │   └── user_scripts/
+        │       └── callObsDictSync.js
+        ├── some_note.md
+        ├── some-other-note.md
+        └── project1/
+            ├── note1.md
+            ...
+```
+
+The content of `Obsidian` is synchronized across all of my machines.
+You don't have to use this pattern of course but a unique path to the binary for each host/platform tuple will make the user script for [running the tool from within Obsidian](#running-from-within-obsidian) a bit more complex.
 
 ## Using
 
@@ -86,14 +124,14 @@ Options:
 
 I _strongly_ believe that tools should come with / generate their own "sane-defaults" configuration file.
 
-You can see a "complete" configuration file [here](./config/example.toml) or just _run_ the tool and a copy of the configuration file will be written to disk.
+You can see a "complete" configuration file [here](./config/example.toml) or just run the tool and a copy of the configuration file will be written to disk.
 
 ```shell
 ❯ ls config.toml
 ls: cannot access 'config.toml': No such file or directory
 
 # Run tool w/o a config file present and one will be generated for you
-❯ dict-sync
+❯ ./dict-sync
 <...>
 
 ❯ ls config.toml
@@ -232,14 +270,12 @@ If the tool has copied words _from_ the authoritative dictionary to the platform
 
 ## TODO
 
-- [ ] GHA to build nix/windows binaries
-  - [ ] `cross` works for nix building windows binaries
-  - [ ] Was able to use [this](https://github.com/rust-lang/rust/issues/112501#issuecomment-1682426620) to successfully build mac binary on *nix.
 - [ ] Tests, lots of tests needed
-  - [ ] See all the `TODO:...` in code
-- [ ] Get the `/r/rust` subreddit do to a review
+
+- [ ] Get the `/r/rust` subreddit do to a review of code
 - [ ] GHA
   - [ ] tests; lots need to be written
+    - [ ] See all the `TODO:...` in code
   - [ ] release / notes drafter
     - [ ] Use something like [`bump-my-version`](https://github.com/callowayproject/bump-my-version)
   - [ ] distribute sig/hash w/ each release too; similar to how `goreleaser` does it
