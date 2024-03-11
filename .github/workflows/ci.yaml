@@ -134,7 +134,7 @@ jobs:
 
       # Otherwise, create a formal release
       - name: Publish GitHub release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           draft: true
           # Files will be saved as
