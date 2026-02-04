@@ -2,6 +2,10 @@
 
 This is a re-implementation of the [python tool](https://github.com/kquinsland/obsidian-dictionary-sync-tool) I built.
 
+> [!NOTE]
+> This program has been 'replaced' and 'superseded' by a native plugin that works in the same way.
+> You can still use this program but you may find it easier to use [this plugin instead](https://github.com/kquinsland/obsidian-plugin-dictionary-sync).
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
