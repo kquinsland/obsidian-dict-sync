@@ -27,7 +27,7 @@ env_logger = "0.11"
 # Needed for relative dict path expansions
 shellexpand = "3.0"
 # For dictionary file hash
-md5 = "0.7"
+md5 = "0.8"
 
 built = { version = "0.7", features = ["chrono", "semver"] }
 const_format = "0.2.32"
