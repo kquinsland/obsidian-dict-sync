@@ -18,7 +18,7 @@ repos:
   # Then clean up the rest of the repo
   - repo: https://github.com/pre-commit/pre-commit-hooks
     # See: https://github.com/pre-commit/pre-commit-hooks/releases
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       # TODO: ignore dictionary.txt file(s) that might be present
       - id: trailing-whitespace
