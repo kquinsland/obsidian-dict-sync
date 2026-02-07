@@ -29,12 +29,12 @@ shellexpand = "3.0"
 # For dictionary file hash
 md5 = "0.7"
 
-built = { version = "0.7", features = ["chrono", "semver"] }
+built = { version = "0.8", features = ["chrono", "semver"] }
 const_format = "0.2.32"
 
 
 [build-dependencies]
-built = { version = "0.7", features = [
+built = { version = "0.8", features = [
     "cargo-lock",
     "dependency-tree",
     "git2",
